@@ -526,3 +526,23 @@ def test_custom_stylemap_style_name():
     ufo, = to_ufos(font)
 
     assert ufo.info.styleMapStyleName == 'bold'
+
+
+def test_filters():
+    ufo = defcon.Font()
+    ufo2ft_filters_key = 'com.github.googlei18n.ufo2ft.filters'
+    filters = [
+        {
+            'name': 'DecomposeComponents',
+            'include': ['slash', 'quoteleft'],
+        },
+    ]
+    glyphs_filter = 'DecomposeComponents;include:slash,quoteleft'
+
+    ufo.lib[ufo2ft_filters_key] = filters
+    font = to_glyphs([ufo], minimize_ufo_diffs=True)
+    assert font.masters[0].customParameters == glyphs_filter
+    assert font.customParameters["Filter"] is None
+
+    ufo, = to_ufos(font)
+    assert ufo.lib[ufo2ft_filters_key] == filters
