@@ -73,15 +73,16 @@ def parse_glyphs_filter(filter_str, is_pre=False):
 
 
 def write_glyphs_filter(result):
+    '''Returns a tuple: Glyphs filter string and prefilter boolean.'''
     elements = [result['name']]
     if 'args' in result:
         for arg in result['args']:
             elements.append(reverse_cast_to_number_or_bool(arg))
     if 'kwargs' in result:
         for key, arg in result['kwargs'].items():
-            if key.lower() not in ('include', 'exclude'):
-                elements.append(key + ':' + reverse_cast_to_number_or_bool(arg))
-        for key, arg in result['kwargs'].items():
-            if key.lower() in ('include', 'exclude'):
-                elements.append(key + ':' + reverse_cast_to_number_or_bool(arg))
-    return ';'.join(elements)
+            elements.append(key + ':' + reverse_cast_to_number_or_bool(arg))
+    if 'include' in result:
+        elements.append('include' + ':' + ','.join(result['include']))
+    if 'exclude' in result:
+        elements.append('exclude' + ':' + ','.join(result['exclude']))
+    return ';'.join(elements), 'pre' in result
